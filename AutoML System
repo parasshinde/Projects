@@ -1,0 +1,27 @@
+pip install autokeras
+pip install tensorflow
+import autokeras as ak
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import fetch_20newsgroups
+from sklearn.metrics import accuracy_score
+# Fetch dataset
+data = fetch_20newsgroups(subset='all', categories=['rec.sport.baseball', 'sci.med'])
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.2, random_state=42)
+# Initialize the text classifier
+clf = ak.TextClassifier(max_trials=3)  # Try up to 3 different models
+
+# Train the model
+clf.fit(X_train, y_train, epochs=10)
+# Predict with the best model
+y_pred = clf.predict(X_test)
+
+# Evaluate the accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy * 100:.2f}%')
+# Export as a Keras model
+model = clf.export_model()
+
+# Save the model
+model.save("text_classifier.h5")
